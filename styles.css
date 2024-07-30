@@ -1,0 +1,46 @@
+img{
+    display: flex;
+}
+body {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: rgb(0, 0, 0);
+    color: rgb(0, 255, 0);
+    text-align: center;
+}
+
+#loadingScreen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+#hackScreen {
+    padding: 20px;
+}
+
+#progressContainer {
+    margin-top: 20px;
+}
+
+#progressText {
+    font-size: 1.5em;
+}
+
+#hackDetails {
+    margin-top: 20px;
+    text-align: left;
+    font-size: 1.2em;
+}
+
+.animate-entry {
+    position: relative;
+    opacity: 0;
+    transform: translateX(-100%);
+    transition: opacity 1s ease, transform 1s ease;
+}
+
+.animate-entry.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
