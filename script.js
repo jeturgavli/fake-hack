@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("hackScreen").style.display = "block";
 
         startHacking();
-    }, 3000); 
+    }, 3000);
 });
 
 function startHacking() {
@@ -20,12 +20,14 @@ function startHacking() {
         } else {
             clearInterval(interval);
             progressText.textContent = "Hacking complete!";
-            fetchUserIP();
+            // Wait for user click to fetch and display data
+            document.addEventListener('click', fetchUserIP);
         }
-    }, 2000); 
+    }, 2000);
 }
 
 function fetchUserIP() {
+    document.removeEventListener('click', fetchUserIP);
     fetch('https://api.ipify.org?format=json')
         .then(response => response.json())
         .then(data => {
@@ -61,18 +63,18 @@ function fetchUserData(ip) {
                 SecureConnection: window.location.protocol === 'https:' ? 'Yes' : 'No',
                 ProxyIPs: data.proxy ? data.proxy : "N/A",
                 WindowProperties: {
-                    Width: window.innerWidth,
-                    Height: window.innerHeight,
-                    Ratio: (window.innerWidth / window.innerHeight).toFixed(2)
+                    WindowWidth: window.innerWidth,
+                    WindowHeight: window.innerHeight,
+                    WindowRatio: (window.innerWidth / window.innerHeight).toFixed(2)
                 },
                 ScreenProperties: {
-                    Width: screen.width,
-                    Height: screen.height,
-                    Ratio: (screen.width / screen.height).toFixed(2),
-                    PixelDepth: screen.pixelDepth,
-                    DPI: "N/A", // Requires external library or specific API
-                    ColorDepth: screen.colorDepth,
-                    Orientation: window.screen.orientation.type
+                    ScreenWidth: screen.width,
+                    ScreenHeight: screen.height,
+                    ScreenRatio: (screen.width / screen.height).toFixed(2),
+                    ScreenPixelDepth: screen.pixelDepth,
+                    ScreenDPI: "N/A",
+                    ScreenColorDepth: screen.colorDepth,
+                    ScreenOrientation: window.screen.orientation.type
                 },
                 OS: navigator.platform,
                 AvailableBrowserMemory: getAvailableBrowserMemory(),
@@ -85,13 +87,18 @@ function fetchUserData(ip) {
                 CurrentTime: new Date().toLocaleTimeString(),
                 TimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                 TimeZoneOffset: new Date().getTimezoneOffset(),
+                NetworkInfo: {
+                    ConnectionType: navigator.connection ? navigator.connection.effectiveType : "N/A",
+                    Downlink: navigator.connection ? navigator.connection.downlink : "N/A",
+                    RTT: navigator.connection ? navigator.connection.rtt : "N/A"
+                },
+                Weather: "Fetching weather data...",
                 Hacked: "Yes",
                 HackedBy: "JETRock ( J E T U R  G A V L I )",
                 CurrentStatus: "Not available"
             };
-            
+
             fetchWeatherData(latitude, longitude, details);
-            // Fetch weather information
         })
         .catch(error => console.error('Error fetching data:', error));
 }
@@ -108,13 +115,14 @@ function fetchWeatherData(latitude, longitude, details) {
         })
         .catch(error => {
             console.error('Error fetching weather data:', error);
-            displayData(details); 
+            details.Weather = "N/A";
+            displayData(details);
         });
 }
 
 function displayData(data) {
     const hackDetails = document.getElementById("hackDetails");
-    
+
     hackDetails.innerHTML = '';
 
     const container = document.createElement('div');
@@ -123,17 +131,38 @@ function displayData(data) {
     let delay = 0;
 
     for (const [key, value] of Object.entries(data)) {
-        const detailElement = document.createElement("p");
-        detailElement.textContent = `${key}: ${value}`;
-        detailElement.className = 'animate-entry';
+        if (typeof value === 'object' && value !== null) {
+            const sectionTitle = document.createElement("h3");
+            sectionTitle.textContent = `${key.replace(/([A-Z])/g, ' $1')}: 🔥`;
+            sectionTitle.className = 'animate-entry';
+            container.appendChild(sectionTitle);
 
-        container.appendChild(detailElement);
+            for (const [subKey, subValue] of Object.entries(value)) {
+                const detailElement = document.createElement("p");
+                detailElement.textContent = `${subKey}: ${subValue}`;
+                detailElement.className = 'animate-entry';
 
-        setTimeout(() => {
-            detailElement.classList.add('visible');
-        }, delay);
+                container.appendChild(detailElement);
 
-        delay += 500; 
+                setTimeout(() => {
+                    detailElement.classList.add('visible');
+                }, delay);
+
+                delay += 500;
+            }
+        } else {
+            const detailElement = document.createElement("p");
+            detailElement.textContent = `${key}: ${value}`;
+            detailElement.className = 'animate-entry';
+
+            container.appendChild(detailElement);
+
+            setTimeout(() => {
+                detailElement.classList.add('visible');
+            }, delay);
+
+            delay += 500;
+        }
     }
 
     hackDetails.appendChild(container);
@@ -141,7 +170,7 @@ function displayData(data) {
     document.addEventListener('click', function playMusic() {
         const hackMusic = document.getElementById("hackMusic");
         hackMusic.play();
-        document.removeEventListener('click', playMusic); 
+        document.removeEventListener('click', playMusic);
     });
 }
 
